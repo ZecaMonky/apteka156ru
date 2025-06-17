@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: aptekaru156
+    env: node
+    plan: free
+    buildCommand: 'npm install'
+    startCommand: 'npm start'
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: CLOUDINARY_URL
+        sync: false
+    autoDeploy: true
+databases:
+  - name: apteka-db
+    plan: free
+    region: frankfurt
+    postgresMajorVersion: 15
