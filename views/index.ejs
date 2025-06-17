@@ -13,9 +13,9 @@
 
   <!-- Кадавное (товары со скидкой) -->
   <% if (discounted && discounted.length) { %>
-    <h2 class="h4 fw-semibold mb-3">Кадавное</h2>
+    <h2 class="h4 fw-semibold mb-3">Посмотрите скидку!</h2>
     <div class="row row-cols-2 row-cols-md-4 g-3 mb-5">
-      <% discounted.forEach(product => { %>
+      <% discounted.slice(0, 3).forEach(product => { %>
         <div class="col">
           <div class="card h-100 text-center">
             <img src="<%= product.image_url %>" alt="<%= product.name %>" class="card-img-top mx-auto mt-3" style="width:85px;height:90px;object-fit:contain;">

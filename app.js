@@ -54,7 +54,6 @@ passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findByPk(id);
-    console.log('USER FROM DB:', user && user.toJSON ? user.toJSON() : user);
     done(null, user);
   } catch (e) {
     done(e);
@@ -79,7 +78,6 @@ app.use((req, res, next) => {
   res.locals.isAdmin = req.user && req.user.is_admin;
   res.locals.success = undefined;
   res.locals.info = undefined;
-  console.log('isAdmin:', res.locals.isAdmin, 'user:', req.user && req.user.email);
   next();
 });
 
@@ -543,7 +541,6 @@ app.post('/admin/categories/discount/edit', ensureAdmin, upload.single('image'),
     }
     res.redirect('/admin/categories');
   } catch (error) {
-    console.error('Error updating discount category:', error);
     const categories = await Category.findAll({ order: [['name', 'ASC']] });
     res.render('admin/categories', { 
       title: 'Категории', 
@@ -556,8 +553,8 @@ app.post('/admin/categories/discount/edit', ensureAdmin, upload.single('image'),
 // Запуск сервера и подключение к БД
 sequelize.sync().then(() => {
   app.listen(3000, () => {
-    console.log('Сервер запущен на порту 3000');
+    // console.log('Сервер запущен на порту 3000');
   });
 }).catch(error => {
-  console.error('Ошибка при запуске сервера:', error);
+  // console.error('Ошибка при запуске сервера:', error);
 });
