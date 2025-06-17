@@ -1,0 +1,114 @@
+<div class="container py-4">
+  <div class="bg-white rounded shadow p-4 mb-5" style="max-width:600px;">
+    <h1 class="h4 fw-bold mb-4 text-success">Профиль</h1>
+    <div class="mb-3"><span class="fw-semibold">Имя:</span> <%= user.name %></div>
+    <div class="mb-3"><span class="fw-semibold">Email:</span> <%= user.email %></div>
+    <% if (user.phone) { %><div class="mb-3"><span class="fw-semibold">Телефон:</span> <%= user.phone %></div><% } %>
+    <% if (user.address) { %><div class="mb-3"><span class="fw-semibold">Адрес:</span> <%= user.address %></div><% } %>
+    <button class="btn btn-outline-success btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#editProfileModal">Редактировать профиль</button>
+  </div>
+  <h2 class="h5 fw-semibold mb-3 text-success">История заказов</h2>
+  <% if (!orders.length) { %>
+    <!-- alert удалён, toast показывается через layout.ejs -->
+  <% } else { %>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+      <% orders.forEach(order => { %>
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="mb-2 text-muted small">Заказ №<%= order.id %> от <%= order.created_at.toLocaleDateString() %></div>
+              <ul class="list-unstyled mb-2">
+                <% order.OrderItems.forEach(item => { %>
+                  <li class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                    <img src="<%= item.Product.image_url %>" alt="<%= item.Product.name %>" style="width:28px;height:28px;object-fit:contain;" class="rounded">
+                    <span class="text-truncate" style="max-width:120px;"><%= item.Product.name %></span>
+                    <span class="text-muted">× <%= item.quantity %></span>
+                    <span class="ms-auto fw-semibold">
+                      <% if (item.old_price && item.discount_percent > 0) { %>
+                        <span class="text-muted text-decoration-line-through me-2"><%= (item.old_price * item.quantity).toFixed(2) %> ₽</span>
+                        <span class="badge bg-info me-2">-<%= item.discount_percent %>%</span>
+                        <span class="text-success fw-bold">
+                          <%= (item.price * item.quantity).toFixed(2) %> ₽
+                        </span>
+                      <% } else { %>
+                        <%= (item.price * item.quantity).toFixed(2) %> ₽
+                      <% } %>
+                    </span>
+                  </li>
+                <% }) %>
+              </ul>
+              <div class="fw-bold mt-2">Итого: <%= order.OrderItems.reduce((sum, i) => sum + i.price * i.quantity, 0).toFixed(2) %> ₽</div>
+              <% if (order.prescription_url) { %>
+                <div class="text-xs text-muted">Рецепт: <a href="<%= order.prescription_url %>" target="_blank" class="text-success text-decoration-underline">смотреть</a></div>
+              <% } %>
+              <% if (order.phone) { %>
+                <div class="mb-1"><span class="fw-semibold">Телефон:</span> <%= order.phone %></div>
+              <% } %>
+              <% if (order.address) { %>
+                <div class="mb-1"><span class="fw-semibold">Адрес:</span> <%= order.address %></div>
+              <% } %>
+              <div class="text-sm mt-2">Статус: <span class="fw-semibold">
+                <% if (order.status === 'pending') { %>В ожидании<% } %>
+                <% if (order.status === 'paid') { %>Оплачен<% } %>
+                <% if (order.status === 'shipped') { %>Отправлен<% } %>
+                <% if (order.status === 'completed') { %>Завершён<% } %>
+                <% if (order.status === 'cancelled') { %>Отменён<% } %>
+              </span></div>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>
+
+<!-- Модальное окно редактирования профиля -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/profile/edit">
+        <div class="modal-header">
+          <h5 class="modal-title">Редактировать профиль</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Имя</label>
+            <input type="text" name="name" class="form-control" required maxlength="100" value="<%= user.name %>">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Телефон</label>
+            <input type="tel" name="phone" class="form-control" required pattern="^\+7\d{10}$" maxlength="12" placeholder="+7XXXXXXXXXX" value="<%= user.phone ? user.phone : '+7' %>" oninput="if(!this.value.startsWith('+7'))this.value='+7';if(this.value.length>12)this.value=this.value.slice(0,12);">
+            <div class="form-text">Формат: +7XXXXXXXXXX (11 цифр)</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Адрес</label>
+            <input type="text" name="address" class="form-control" required maxlength="255" value="<%= user.address || '' %>">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Новый пароль</label>
+            <input type="password" name="password" id="editPassword" class="form-control" minlength="6" placeholder="Оставьте пустым, чтобы не менять" autocomplete="new-password" pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$">
+            <div class="form-text" id="editPasswordHelp">
+              Минимум 6 символов, хотя бы одна латинская буква и одна цифра
+            </div>
+          </div>
+          <script>
+            document.getElementById('editPassword').addEventListener('input', function() {
+              const val = this.value;
+              let msg = '';
+              if (val.length && val.length < 6) msg += 'Минимум 6 символов. ';
+              if (val.length && !/[A-Za-z]/.test(val)) msg += 'Хотя бы одна латинская буква. ';
+              if (val.length && !/\d/.test(val)) msg += 'Хотя бы одна цифра. ';
+              document.getElementById('editPasswordHelp').textContent = msg || (val.length ? 'Пароль подходит!' : 'Минимум 6 символов, хотя бы одна латинская буква и одна цифра');
+              document.getElementById('editPasswordHelp').className = msg ? 'form-text text-danger' : 'form-text text-success';
+            });
+          </script>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-success">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 

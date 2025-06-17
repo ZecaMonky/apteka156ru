@@ -1,0 +1,98 @@
+<div class="container py-4">
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/admin">Админка</a></li>
+      <li class="breadcrumb-item active">Заказы</li>
+    </ol>
+  </nav>
+  <h1 class="h4 fw-bold mb-4">Заказы</h1>
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Дата</th>
+          <th>Пользователь</th>
+          <th>Телефон</th>
+          <th>Адрес</th>
+          <th>Товары</th>
+          <th>Рецепт</th>
+          <th>Статус</th>
+          <th>Итого</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% orders.forEach(order => { %>
+          <tr>
+            <td><%= order.id %></td>
+            <td><%= order.created_at.toLocaleString() %></td>
+            <td>
+              <% if (order.User) { %>
+                <div><%= order.User.name %></div>
+                <div class="text-muted small"><%= order.User.email %></div>
+              <% } else { %>
+                <span class="text-muted">Гость</span>
+              <% } %>
+            </td>
+            <td><%= order.phone || '-' %></td>
+            <td><%= order.address || '-' %></td>
+            <td>
+              <ul class="list-unstyled mb-0">
+                <% order.OrderItems.forEach(item => { %>
+                  <li>
+                    <%= item.Product ? item.Product.name : 'Товар удалён' %> × <%= item.quantity %> —
+                    <% if (item.old_price && item.discount_percent > 0) { %>
+                      <span class="text-muted text-decoration-line-through me-2"><%= (item.old_price * item.quantity).toFixed(2) %> ₽</span>
+                      <span class="badge bg-info me-2">-<%= item.discount_percent %>%</span>
+                      <span class="text-success fw-bold">
+                        <%= (item.price * item.quantity).toFixed(2) %> ₽
+                      </span>
+                    <% } else { %>
+                      <%= (item.price * item.quantity).toFixed(2) %> ₽
+                    <% } %>
+                  </li>
+                <% }) %>
+              </ul>
+            </td>
+            <td>
+              <% if (order.prescription_url) { %>
+                <a href="<%= order.prescription_url %>" target="_blank" class="btn btn-outline-info btn-sm"><i class="bi bi-file-earmark-medical"></i> Смотреть</a>
+              <% } else { %>
+                —
+              <% } %>
+            </td>
+            <td>
+              <% if (order.status === 'pending') { %>
+                <span class="badge bg-warning text-dark">В ожидании</span>
+              <% } else if (order.status === 'paid') { %>
+                <span class="badge bg-info">Оплачен</span>
+              <% } else if (order.status === 'shipped') { %>
+                <span class="badge bg-primary">Отправлен</span>
+              <% } else if (order.status === 'completed') { %>
+                <span class="badge bg-success">Завершён</span>
+              <% } else if (order.status === 'cancelled') { %>
+                <span class="badge bg-danger">Отменён</span>
+              <% } %>
+            </td>
+            <td class="fw-bold">
+              <%= order.OrderItems.reduce((sum, i) => sum + i.price * i.quantity, 0).toFixed(2) %> ₽
+            </td>
+            <td>
+              <form method="post" action="/admin/orders/<%= order.id %>/status" class="d-flex gap-2 align-items-center">
+                <select name="status" class="form-select form-select-sm">
+                  <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>В ожидании</option>
+                  <option value="paid" <%= order.status === 'paid' ? 'selected' : '' %>>Оплачен</option>
+                  <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Отправлен</option>
+                  <option value="completed" <%= order.status === 'completed' ? 'selected' : '' %>>Завершён</option>
+                  <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Отменён</option>
+                </select>
+                <button class="btn btn-success btn-sm">OK</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div> 

@@ -1,0 +1,75 @@
+<div class="container py-4">
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/admin">Админка</a></li>
+      <li class="breadcrumb-item active">Товары</li>
+    </ol>
+  </nav>
+  <h1 class="h4 fw-bold mb-4">Админка — Товары</h1>
+  <div class="d-flex gap-3 mb-4">
+    <a href="/admin/products/new" class="btn btn-success"><i class="bi bi-plus-circle"></i> Добавить товар</a>
+    <a href="/admin/categories" class="btn btn-outline-success">Категории</a>
+    <a href="/admin/orders" class="btn btn-outline-info">Заказы</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Фото</th>
+          <th>Название</th>
+          <th>Категория</th>
+          <th>Цена</th>
+          <th>Скидка</th>
+          <th>По рецепту</th>
+          <th>Статус</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% products.forEach(product => { %>
+          <tr>
+            <td><%= product.id %></td>
+            <td><img src="<%= product.image_url %>" alt="" style="width:48px;height:48px;object-fit:contain;" class="rounded"></td>
+            <td class="fw-semibold"><%= product.name %></td>
+            <td><%= product.Category ? product.Category.name : '' %></td>
+            <td>
+              <% if (product.is_discounted && product.discount_percent > 0) { %>
+                <span class="text-muted text-decoration-line-through me-2"><%= product.price %> ₽</span>
+                <span class="badge bg-info me-2">-<%= product.discount_percent %>%</span>
+                <span class="text-success fw-bold">
+                  <%= (product.price * (1 - product.discount_percent / 100)).toFixed(2) %> ₽
+                </span>
+              <% } else { %>
+                <%= product.price %> ₽
+              <% } %>
+            </td>
+            <td>
+              <% if (product.is_discounted) { %>
+                <span class="badge bg-info">Да</span>
+              <% } %>
+            </td>
+            <td>
+              <% if (product.requires_prescription) { %>
+                <span class="badge bg-warning text-dark">Да</span>
+              <% } %>
+            </td>
+            <td>
+              <% if (product.is_hidden) { %>
+                <span class="badge bg-secondary">Скрыт</span>
+              <% } else { %>
+                <span class="badge bg-success">Виден</span>
+              <% } %>
+            </td>
+            <td class="d-flex gap-2">
+              <a href="/admin/products/<%= product.id %>/edit" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i> Изменить</a>
+              <form method="post" action="/admin/products/<%= product.id %>/toggle" style="display:inline">
+                <button class="btn btn-outline-secondary btn-sm" title="Скрыть/Показать">{<%= product.is_hidden ? 'Показать' : 'Скрыть' %>}</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div> 

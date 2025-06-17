@@ -1,0 +1,89 @@
+<div class="container mb-5">
+  <div class="row g-4">
+    <!-- Левая панель фильтров -->
+    <aside class="col-lg-3">
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h2 class="h6 fw-semibold mb-0 text-success"><i class="bi bi-funnel"></i> Фильтры</h2>
+            <button class="btn btn-sm btn-outline-secondary d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse">
+              <i class="bi bi-chevron-down"></i>
+            </button>
+          </div>
+          <div class="collapse d-lg-block" id="filtersCollapse">
+            <h3 class="h6 fw-semibold mb-3 text-success">Категории</h3>
+            <ul class="list-unstyled mb-4">
+              <li>
+                <a href="/catalog" class="d-block py-1 px-2 rounded text-decoration-none <%= !selectedCategory ? 'fw-bold text-success' : 'text-secondary' %>">Все</a>
+              </li>
+              <li>
+                <a href="/catalog?discount=true" class="d-block py-1 px-2 rounded text-decoration-none <%= discount ? 'fw-bold text-success' : 'text-secondary' %>">Скидки</a>
+              </li>
+              <% categories.forEach(category => { %>
+                <li>
+                  <a href="/catalog?category=<%= category.id %>" class="d-block py-1 px-2 rounded text-decoration-none <%= selectedCategory == category.id ? 'fw-bold text-success' : 'text-secondary' %>"><%= category.name %></a>
+                </li>
+              <% }) %>
+            </ul>
+            <h3 class="h6 fw-semibold mb-2 text-success"><i class="bi bi-sort-down"></i> Сортировка</h3>
+            <form method="get" action="/catalog">
+              <% if (selectedCategory) { %>
+                <input type="hidden" name="category" value="<%= selectedCategory %>">
+              <% } %>
+              <% if (discount) { %>
+                <input type="hidden" name="discount" value="true">
+              <% } %>
+              <select name="sort" class="form-select form-select-sm mb-2">
+                <option value="name" <%= !sort || sort === 'name' ? 'selected' : '' %>>По алфавиту</option>
+                <option value="price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>Сначала дешёвые</option>
+                <option value="price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>Сначала дорогие</option>
+                <option value="popular" <%= sort === 'popular' ? 'selected' : '' %>>По популярности</option>
+              </select>
+              <button type="submit" class="btn btn-success btn-sm w-100">Применить</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </aside>
+    <!-- Список товаров -->
+    <section class="col-lg-9">
+      <h1 class="h4 fw-bold mb-4 text-success">Каталог товаров</h1>
+      <% if (products.length === 0) { %>
+        <div class="alert alert-secondary">Нет товаров в выбранной категории.</div>
+      <% } else { %>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
+          <% products.forEach(product => { %>
+            <div class="col">
+              <div class="card h-100 text-center">
+                <img src="<%= product.image_url %>" alt="<%= product.name %>" class="card-img-top mx-auto mt-3" style="width:85px;height:90px;object-fit:contain;">
+                <div class="card-body">
+                  <div class="card-title fw-semibold mb-1"><%= product.name %></div>
+                  <div class="text-muted small mb-2"><%= product.Category ? product.Category.name : '' %></div>
+                  <div class="fw-bold mb-2">
+                    <% if (product.is_discounted && product.discount_percent > 0) { %>
+                      <span class="text-muted text-decoration-line-through me-2"><%= product.price %> ₽</span>
+                      <span class="badge bg-info me-2">-<%= product.discount_percent %>%</span>
+                      <span class="text-success fw-bold">
+                        <%= (product.price * (1 - product.discount_percent / 100)).toFixed(2) %> ₽
+                      </span>
+                    <% } else { %>
+                      <%= product.price %> ₽
+                    <% } %>
+                  </div>
+                  <% if (product.requires_prescription) { %>
+                    <span class="badge bg-warning text-dark mb-2">По рецепту</span>
+                  <% } %>
+                  <a href="/product/<%= product.id %>" class="btn btn-link btn-sm text-success">Подробнее</a>
+                  <form method="post" action="/cart/add" class="mt-2">
+                    <input type="hidden" name="product_id" value="<%= product.id %>">
+                    <button type="submit" class="btn btn-outline-success btn-sm w-100">В корзину</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </div>
+</div> 

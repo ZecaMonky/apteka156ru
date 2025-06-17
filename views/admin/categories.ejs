@@ -1,0 +1,90 @@
+<div class="container py-4">
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/admin">Админка</a></li>
+      <li class="breadcrumb-item active">Категории</li>
+    </ol>
+  </nav>
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white fw-semibold">Категории</div>
+        <div class="card-body">
+          <% if (error) { %>
+            <!-- alert удалён, toast показывается через layout.ejs -->
+          <% } %>
+          <form method="post" action="/admin/categories/new" class="mb-4 d-flex gap-2" enctype="multipart/form-data">
+            <input type="text" name="name" placeholder="Новая категория" required class="form-control form-control-lg">
+            <input type="file" name="image" accept="image/*" class="form-control">
+            <button type="submit" class="btn btn-success btn-lg">Добавить</button>
+          </form>
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Изображение</th>
+                  <th>Название</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% categories.forEach(cat => { %>
+                  <tr>
+                    <td>
+                      <% if (cat.image_url) { %>
+                        <img src="<%= cat.image_url %>" alt="" style="width:48px;height:48px;object-fit:contain;" class="rounded">
+                      <% } else { %>
+                        <i class="bi bi-image text-muted fs-4"></i>
+                      <% } %>
+                    </td>
+                    <td><%= cat.name %></td>
+                    <td>
+                      <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<%= cat.id %>">
+                          <i class="bi bi-pencil"></i> Изменить
+                        </button>
+                        <form method="post" action="/admin/categories/<%= cat.id %>/delete" style="display:inline">
+                          <button class="btn btn-outline-danger btn-sm" title="Удалить"><i class="bi bi-trash"></i> Удалить</button>
+                        </form>
+                      </div>
+                      <!-- Модальное окно редактирования -->
+                      <div class="modal fade" id="editModal<%= cat.id %>" tabindex="-1">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Редактировать категорию</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <form method="post" action="/admin/categories/<%= cat.id %>/edit" enctype="multipart/form-data">
+                              <div class="modal-body">
+                                <div class="mb-3">
+                                  <label class="form-label">Название</label>
+                                  <input type="text" name="name" required class="form-control" value="<%= cat.name %>">
+                                </div>
+                                <div class="mb-3">
+                                  <label class="form-label">Изображение</label>
+                                  <input type="file" name="image" accept="image/*" class="form-control">
+                                  <% if (cat.image_url) { %>
+                                    <img src="<%= cat.image_url %>" alt="" style="width:80px;height:80px;object-fit:contain;" class="rounded mt-2">
+                                  <% } %>
+                                </div>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                <button type="submit" class="btn btn-success">Сохранить</button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

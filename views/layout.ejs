@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title || 'АптекаРу' %></title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <style>
+      body { font-family: 'Open Sans', Arial, sans-serif; }
+      h1, h2, h3, .font-oswald { font-family: 'Oswald', Arial, sans-serif; }
+    </style>
+  </head>
+  <body class="bg-light d-flex flex-column min-vh-100">
+    <!-- Header -->
+    <header class="bg-white shadow-sm py-4 px-4">
+      <div class="container d-flex align-items-center justify-content-between">
+        <a href="/" class="d-flex align-items-center text-decoration-none">
+          <img src="/images/logo.png" alt="Логотип" width="40" height="40" class="me-2">
+        </a>
+        <!-- Бургер только на мобилке -->
+        <button class="navbar-toggler border-0 d-md-none ms-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
+          <i class="bi bi-list fs-2"></i>
+        </button>
+        <!-- Десктоп-меню -->
+        <nav class="d-none d-md-flex gap-3 align-items-center ms-auto">
+          <a href="/" class="text-secondary text-decoration-none fw-medium">Главная</a>
+          <a href="/catalog" class="text-secondary text-decoration-none fw-medium">Каталог</a>
+          <a href="/contacts" class="text-secondary text-decoration-none fw-medium">Контакты</a>
+          <% if (user) { %>
+            <a href="/profile" class="text-secondary text-decoration-none fw-medium"><i class="bi bi-person"></i> Профиль</a>
+            <a href="/cart" class="text-secondary text-decoration-none fw-medium"><i class="bi bi-bag"></i> Корзина</a>
+            <% if (isAdmin) { %>
+              <a href="/admin" class="text-info fw-semibold">Админка</a>
+            <% } %>
+            <a href="/logout" class="text-secondary text-decoration-none fw-medium">Выход</a>
+          <% } else { %>
+            <a href="/login" class="text-secondary text-decoration-none fw-medium">Вход</a>
+            <a href="/register" class="text-secondary text-decoration-none fw-medium">Регистрация</a>
+          <% } %>
+        </nav>
+        <!-- Мобильное offcanvas меню -->
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="mobileMenuLabel">
+              <img src="/images/logo.png" alt="Логотип" width="32" height="32" class="me-2 align-middle"> АптекаРу
+            </h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Закрыть"></button>
+          </div>
+          <div class="offcanvas-body d-flex flex-column gap-3">
+            <a href="/" class="text-secondary text-decoration-none fw-medium" data-bs-dismiss="offcanvas">Главная</a>
+            <a href="/catalog" class="text-secondary text-decoration-none fw-medium" data-bs-dismiss="offcanvas">Каталог</a>
+            <a href="/contacts" class="text-secondary text-decoration-none fw-medium" data-bs-dismiss="offcanvas">Контакты</a>
+            <% if (user) { %>
+              <a href="/profile" class="text-secondary text-decoration-none fw-medium" data-bs-dismiss="offcanvas"><i class="bi bi-person"></i> Профиль</a>
+              <a href="/cart" class="text-secondary text-decoration-none fw-medium" data-bs-dismiss="offcanvas"><i class="bi bi-bag"></i> Корзина</a>
+              <% if (isAdmin) { %>
+                <a href="/admin" class="text-info fw-semibold" data-bs-dismiss="offcanvas">Админка</a>
+              <% } %>
+              <a href="/logout" class="text-secondary text-decoration-none fw-medium" data-bs-dismiss="offcanvas">Выход</a>
+            <% } else { %>
+              <a href="/login" class="text-secondary text-decoration-none fw-medium" data-bs-dismiss="offcanvas">Вход</a>
+              <a href="/register" class="text-secondary text-decoration-none fw-medium" data-bs-dismiss="offcanvas">Регистрация</a>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- Main Content -->
+    <main class="flex-grow-1 container py-5">
+      <%- body %>
+    </main>
+    <!-- Footer -->
+    <footer class="bg-white border-top py-4 px-4 text-center text-muted mt-auto small">
+      <div>© <%= new Date().getFullYear() %> АптекаРу. Все права защищены.</div>
+      <div class="mt-2">
+        <a href="/privacy" class="text-decoration-underline">Политика конфиденциальности</a> ·
+        <a href="/terms" class="text-decoration-underline">Пользовательское соглашение</a>
+      </div>
+    </footer>
+    <!-- Toast notifications -->
+    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true" id="mainToast">
+          <div class="d-flex">
+            <div class="toast-body"><%= error %></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+          </div>
+        </div>
+      <% } %>
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true" id="mainToast">
+          <div class="d-flex">
+            <div class="toast-body"><%= success %></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+          </div>
+        </div>
+      <% } %>
+      <% if (typeof info !== 'undefined' && info) { %>
+        <div class="toast align-items-center text-bg-info border-0 show" role="alert" aria-live="assertive" aria-atomic="true" id="mainToast">
+          <div class="d-flex">
+            <div class="toast-body"><%= info %></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+          </div>
+        </div>
+      <% } %>
+    </div>
+    <script>
+      window.addEventListener('DOMContentLoaded', function() {
+        var toastEl = document.getElementById('mainToast');
+        if (toastEl) {
+          var toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+          toast.show();
+        }
+      });
+      // Инициализация всех offcanvas (для корректной работы крестика)
+      document.addEventListener('DOMContentLoaded', function() {
+        var offcanvasEls = document.querySelectorAll('.offcanvas');
+        offcanvasEls.forEach(function(el) {
+          new bootstrap.Offcanvas(el);
+        });
+        // Исправление перехода по ссылкам в offcanvas
+        document.querySelectorAll('.offcanvas a[data-bs-dismiss="offcanvas"]').forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            var href = this.getAttribute('href');
+            var offcanvasEl = this.closest('.offcanvas');
+            var offcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
+            offcanvas.hide();
+            setTimeout(function() {
+              window.location.href = href;
+            }, 350); // 350мс — стандартная длительность анимации Bootstrap
+          });
+        });
+      });
+    </script>
+  </body>
+</html> 

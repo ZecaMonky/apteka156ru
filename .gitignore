@@ -1,0 +1,24 @@
+# Node
+node_modules/
+.env
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+.DS_Store
+*.sqlite
+*.sqlite3
+*.log
+coverage/
+public/uploads/
+
+# OS
+Thumbs.db
+*.swp
+
+# Logs
+logs
+*.log
+
+# Editor
+.vscode/
+.idea/ 

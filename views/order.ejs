@@ -1,0 +1,51 @@
+<div class="container py-4">
+  <h1 class="h4 fw-bold mb-4 text-success">Оформление заказа</h1>
+  <% if (error) { %>
+    <!-- alert удалён, toast показывается через layout.ejs -->
+  <% } %>
+  <div class="mb-4">
+    <h2 class="h6 fw-semibold mb-2">Ваш заказ:</h2>
+    <ul class="list-group mb-3">
+      <% items.forEach(item => { %>
+        <li class="list-group-item d-flex align-items-center gap-3">
+          <img src="<%= item.product.image_url %>" alt="<%= item.product.name %>" style="width:40px;height:40px;object-fit:contain;" class="rounded">
+          <span class="fw-medium"><%= item.product.name %></span>
+          <span class="text-muted">× <%= item.quantity %></span>
+          <span class="ms-auto fw-semibold">
+            <% if (item.product.is_discounted && item.product.discount_percent > 0) { %>
+              <span class="text-muted text-decoration-line-through me-2"><%= (item.product.price * item.quantity).toFixed(2) %> ₽</span>
+              <span class="badge bg-info me-2">-<%= item.product.discount_percent %>%</span>
+              <span class="text-success fw-bold">
+                <%= (item.product.price * (1 - item.product.discount_percent / 100) * item.quantity).toFixed(2) %> ₽
+              </span>
+            <% } else { %>
+              <%= (item.product.price * item.quantity).toFixed(2) %> ₽
+            <% } %>
+          </span>
+          <% if (item.product.requires_prescription) { %>
+            <span class="badge bg-warning text-dark ms-2">По рецепту</span>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+    <div class="fw-bold fs-5 text-end">Итого: <%= items.reduce((sum, i) => sum + (i.product.is_discounted && i.product.discount_percent > 0 ? (i.product.price * (1 - i.product.discount_percent / 100)) : i.product.price) * i.quantity, 0).toFixed(2) %> ₽</div>
+  </div>
+  <form method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+      <label class="form-label">Телефон <span class="text-danger">*</span></label>
+      <input type="tel" name="phone" class="form-control" required pattern="^\+7\d{10}$" maxlength="12" placeholder="+7XXXXXXXXXX" value="<%= user && user.phone ? user.phone : '+7' %>" oninput="if(!this.value.startsWith('+7'))this.value='+7';if(this.value.length>12)this.value=this.value.slice(0,12);">
+      <div class="form-text">Формат: +7XXXXXXXXXX (11 цифр)</div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Адрес доставки <span class="text-danger">*</span></label>
+      <input type="text" name="address" class="form-control" required maxlength="255" value="<%= user && user.address ? user.address : '' %>">
+    </div>
+    <% if (needPrescription) { %>
+      <div class="mb-4">
+        <label class="form-label">Загрузите фото рецепта <span class="text-danger">*</span></label>
+        <input type="file" name="prescription" accept="image/*" required class="form-control form-control-sm">
+      </div>
+    <% } %>
+    <button type="submit" class="btn btn-success btn-lg px-5"><i class="bi bi-check-circle"></i> Оформить заказ</button>
+  </form>
+</div> 
